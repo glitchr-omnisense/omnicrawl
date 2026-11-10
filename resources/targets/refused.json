@@ -1,0 +1,15 @@
+{
+    "$schema": "../target.schema.json",
+    "targets": [
+        {
+            "target": "transfer.navitime.biz/tokyu/",
+            "collection": "refused",
+            "authority": "published-terms",
+            "reference": "https://transfer.navitime.biz/tokyu/pc/disclaimer/DisclaimerInformation",
+            "date": "2026-11-10",
+            "operations": ["page-fetch", "extract", "crawl-runs"],
+            "reason": "Tokyu Railways' fare, route and timetable search (run on NAVITIME's transfer service): its terms forbid collecting, extracting, copying, storing or analysing its content, in whole or in part, by web spiders, crawlers, robots, scraping, APIs or any similar automated means, and using it to develop or train machine learning models (text and data mining included).",
+            "notes": "Read on 2026-11-10 (禁止事項: 「ウェブスパイダー、クローラー、ロボット、スクレイピング、APIその他これらに類する自動化された手段を用いて、コンテンツの全部又は一部を収集、抽出、複製、蓄積又は解析する行為」). Other operators' services on the same host have terms of their own, not read here: declare them as they are read."
+        }
+    ]
+}

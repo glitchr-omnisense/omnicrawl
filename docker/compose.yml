@@ -1,0 +1,34 @@
+# omnisense/omnicrawl with every omnicrawl/* provider:
+#
+#   docker compose run --rm omnicrawl test       # every package's tests (recorded answers; no network)
+#   docker compose run --rm omnicrawl live       # the gate and the direct provider against a local test site (php -S in the container)
+#   docker compose run --rm omnicrawl bare       # plain PHP: a gate, a registry, a preview, a refusal - and what PHP loaded
+#   docker compose run --rm omnicrawl phpstan    # PHPStan, each package at the highest level
+#   docker compose down -v                       # the harness's volume gone
+#
+# No test calls a crawling service or a third-party site: the "live" group runs against a site
+# served inside the container on 127.0.0.1.
+#
+# Providers come from GitHub (branch 1.x) unless their checkout sits under OMNICRAWL_PLUGINS (set
+# it to ../.. in .env when this core sits in the workspace beside them). omnisense/contracts
+# likewise, under OMNISENSE_CONTRACTS.
+name: omnicrawl-harness
+
+services:
+  omnicrawl:
+    build: .
+    image: omnisense/omnicrawl-harness
+    entrypoint: ["/omnicrawl/core/docker/entrypoint.sh"]
+    # One service, no server beside it: Docker's default bridge, no network of its own to create.
+    network_mode: bridge
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - ..:/omnicrawl/core
+      - ${OMNICRAWL_PLUGINS:-./plugins}:/omnicrawl/plugins:ro
+      - ${OMNISENSE_CONTRACTS:-./contracts}:/omnisense/contracts:ro
+      - harness:/harness
+
+volumes:
+  harness:

@@ -1,0 +1,58 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * Omnicrawl in plain PHP: no bundle, no container, no framework. A gate
+ * with a site's agent and one declaration, a registry of the direct
+ * provider over recorded answers: a link preview of an undeclared site
+ * (robots.txt read first), a refusal by robots.txt, the shipped refusal of
+ * a rail operator's timetables, a run refused on an undeclared site - and
+ * the requests made, to show that the refused ones made none. Prints what
+ * happened and every class and file PHP loaded, as JSON.
+ */
+
+use Omnicrawl\Agent;
+use Omnicrawl\Direct\DirectFactory;
+use Omnicrawl\Exception\RefusedException;
+use Omnicrawl\Guard\Gate;
+use Omnicrawl\Registry;
+use Omnicrawl\Target\Targets;
+use Omnicrawl\Testing\RecordedHttpClient;
+
+require getenv('OMNICRAWL_AUTOLOAD') ?: '/harness/vendor/autoload.php';
+
+$http = RecordedHttpClient::routes([
+    '~^GET https://news\.example\.com/robots\.txt$~' => [200, "User-agent: *\nDisallow: /drafts/\n", ['content-type' => ['text/plain']]],
+    '~^GET https://news\.example\.com/articles/1$~' => [200, '<html lang="en"><head><title>Article</title><meta property="og:title" content="An article"><meta property="og:image" content="/cover.jpg"><meta name="description" content="What it says"></head><body></body></html>', ['content-type' => ['text/html']]],
+]);
+$gate = new Gate(Agent::parse('BareBot/1.0 (+https://example.org/bot; bot@example.org)'), $http, new Targets([
+    ['target' => 'docs.example.org', 'collection' => 'allowed', 'authority' => 'own-site', 'reference' => 'https://docs.example.org', 'date' => '2026-11-10', 'operations' => ['page-fetch', 'extract', 'crawl-runs']],
+]));
+$registry = new Registry([new DirectFactory($http)], ['direct' => ['factory' => 'direct']], $gate);
+
+$preview = $registry->extract('direct')->extract('https://news.example.com/articles/1')->preview();
+$report = [
+    'capabilities' => $registry->get('direct')->capabilities()->contracts(),
+    'preview' => [$preview['title'], $preview['description'], $preview['image'], $preview['provenance']['authority'], $preview['provenance']['robots']],
+];
+$requests = count($http->requests);
+foreach (['https://news.example.com/drafts/2', 'https://transfer.navitime.biz/tokyu/pc/map/Top'] as $url) {
+    try {
+        $registry->pageFetch('direct')->fetch($url);
+    } catch (RefusedException $e) {
+        $report['refused'][] = [$e->reason, $e->reference];
+    }
+}
+try {
+    $registry->crawlRuns('direct');
+} catch (Omnicrawl\Exception\NotSupportedException $e) {
+    $report['runs'] = 'not supported by the direct provider';
+}
+$report['requests'] = [$requests, count($http->requests) - $requests];
+$report['user-agent'] = $http->header('User-Agent');
+
+echo json_encode($report + ['loaded' => [
+    'symbols' => [...get_declared_classes(), ...get_declared_interfaces(), ...get_declared_traits()],
+    'files' => array_map('realpath', get_included_files()),
+    'eager' => array_map('realpath', array_values(is_file($f = dirname((string) (new ReflectionClass(Composer\Autoload\ClassLoader::class))->getFileName()).'/autoload_files.php') ? require $f : [])),
+]], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), "\n";

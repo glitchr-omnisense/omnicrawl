@@ -1,11 +1,22 @@
 {
     "name": "omnisense/omnicrawl",
     "type": "library",
-    "description": "Reserved, not released yet: Fetch and extract web pages through crawling services, responsibly by default: robots.txt honoured, a usage policy per target site, an identified User-Agent, provenance kept on every record, under any PHP host.",
+    "description": "Omnicrawl: fetch and extract web pages under any PHP host, through crawling services or directly, responsible by default - the target site's rules applied by the family itself before any service is called. robots.txt read and honoured per RFC 9309 for the family's own token, a usage policy per target site declared as data (allowed or refused, on what authority, with a reference and a date, its rate limits, what may be stored and republished) and a conservative default for the others (single pages for previews, no crawl run), an identified User-Agent required by every factory, per-host limits through omnisense/contracts' PolicyGuard beside the provider's own, X-Robots-Tag, meta robots and TDMRep reservations honoured, provenance on every record. Three contracts: page-fetch, extract (metadata, Open Graph, JSON-LD, selectors), crawl-runs. A direct fetcher built in; omnicrawl/apify, omnicrawl/firecrawl, omnicrawl/scrapingbee, omnicrawl/zyte as packages of their own, none of their evasion features exposed.",
     "keywords": [
-        "omnicrawl",
-        "reserved",
-        "framework-agnostic"
+        "crawler",
+        "scraping",
+        "robots.txt",
+        "rfc9309",
+        "tdmrep",
+        "x-robots-tag",
+        "open-graph",
+        "json-ld",
+        "link-preview",
+        "provenance",
+        "rate-limit",
+        "responsible",
+        "framework-agnostic",
+        "omnicrawl"
     ],
     "homepage": "https://github.com/glitchr-omnisense/omnicrawl",
     "license": "MIT",
@@ -16,11 +27,39 @@
         }
     ],
     "require": {
-        "php": ">=8.2"
+        "php": ">=8.2",
+        "ext-dom": "*",
+        "ext-libxml": "*",
+        "ext-mbstring": "*",
+        "omnisense/contracts": "^1.0@dev",
+        "symfony/http-client-contracts": "^3.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^11.0",
+        "symfony/http-client": "^6.4|^7.0|^8.0"
+    },
+    "suggest": {
+        "symfony/http-client": "The HTTP client the gate reads robots.txt with and the direct provider fetches with (any HttpClientInterface does)",
+        "omnicrawl/firecrawl": "Firecrawl (v2): pages fetched, rendered or not, and batch runs over a set of addresses",
+        "omnicrawl/scrapingbee": "ScrapingBee: pages fetched, rendered or not, the target's headers reported",
+        "omnicrawl/zyte": "Zyte API: pages fetched over HTTP, for targets declared under a licence only (its ban avoidance cannot be turned off)",
+        "omnicrawl/apify": "Apify: runs over a set of addresses with the Cheerio Scraper actor, raw HTML and headers kept",
+        "omnisense/omnibridge": "The host contracts; omnibridge/symfony and omnibridge/laravel give a shared limiter and store"
     },
     "autoload": {
         "psr-4": {
             "Omnicrawl\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/",
+            "/docker/",
+            "/bin/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Omnicrawl\\Tests\\": "Tests/"
         }
     },
     "extra": {
