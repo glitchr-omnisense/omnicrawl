@@ -1,5 +1,5 @@
 {
-    "$schema": "../target.schema.json",
+    "$schema": "../../resources/target.schema.json",
     "targets": [
         {
             "target": "transfer.navitime.biz/tokyu/",

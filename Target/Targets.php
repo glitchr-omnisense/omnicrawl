@@ -15,16 +15,12 @@ use Omnisense\Contracts\Policy\Window;
 /**
  * Every target the application knows, and what applies to the others:
  *
- * - the site's declarations (Target, or the schema's arrays, or a JSON
- *   file: fromFile());
- * - the family's own list of refusals, shipped in
- *   resources/targets/refused.json (sites whose published terms forbid
- *   automated collection, each with its reference and the day it was
- *   read). A site's declaration overrides one of them only under a
- *   licence - its own site, or the owner's written permission: no reading
- *   of terms or robots.txt turns a known refusal into a permission;
- * - the default, for a target nobody declared (DEFAULT), or a refusal of
- *   every undeclared target ($refuseUndeclared).
+ * - the application's declarations (Target, or the schema's arrays, or a
+ *   JSON file: fromFile()) - its refusals among them: the family ships no
+ *   list of third-party sites, each application declares the sites it
+ *   refuses, with the terms' reference and the day it read them;
+ * - the default, for a target nobody declared (default()), or a refusal
+ *   of every undeclared target ($refuseUndeclared).
  *
  * The most specific pattern that covers an address decides (Pattern).
  *
@@ -46,26 +42,18 @@ final class Targets
     /** The pattern of the default, which covers what no declaration does. */
     public const ANY = '*';
 
-    public const SHIPPED = __DIR__.'/../resources/targets/refused.json';
-
     public const SCHEMA = __DIR__.'/../resources/target.schema.json';
 
     /** @var list<Target> */
     private array $declared = [];
 
-    /** @var list<Target> */
-    private array $shipped = [];
-
     private readonly Target $default;
 
     /** @param iterable<Target|array<string, mixed>> $declared */
-    public function __construct(iterable $declared = [], bool $shipped = true, bool $refuseUndeclared = false)
+    public function __construct(iterable $declared = [], bool $refuseUndeclared = false)
     {
         foreach ($declared as $target) {
             $this->declared[] = $target instanceof Target ? $target : Target::fromArray($target);
-        }
-        if ($shipped) {
-            $this->shipped = self::read(self::SHIPPED, DeclaredBy::Maintainer);
         }
         $this->default = $refuseUndeclared ? self::refusal() : self::default();
     }
@@ -74,9 +62,9 @@ final class Targets
      * A site's declarations from a JSON file: a list of targets, or
      * {"targets": [...]}.
      */
-    public static function fromFile(string $path, bool $shipped = true, bool $refuseUndeclared = false): self
+    public static function fromFile(string $path, bool $refuseUndeclared = false): self
     {
-        return new self(self::read($path, DeclaredBy::Site), $shipped, $refuseUndeclared);
+        return new self(self::read($path, DeclaredBy::Site), $refuseUndeclared);
     }
 
     /** What applies to a target nobody declared. */
@@ -104,28 +92,16 @@ final class Targets
         ];
     }
 
-    /** The target that decides for an address's host and path ("/a/b?c"): a declaration, a shipped refusal, or the default. */
+    /** The target that decides for an address's host and path ("/a/b?c"): a declaration, or the default. */
     public function for(string $host, string $path): Target
     {
-        $declared = self::best($this->declared, $host, $path);
-        $shipped = self::best($this->shipped, $host, $path);
-        if (null !== $shipped && !$shipped->allowed && (null === $declared || !$declared->authority->isLicence())) {
-            return $shipped;
-        }
-
-        return $declared ?? $shipped ?? $this->default;
+        return self::best($this->declared, $host, $path) ?? $this->default;
     }
 
     /** @return list<Target> */
     public function declared(): array
     {
         return $this->declared;
-    }
-
-    /** @return list<Target> */
-    public function shipped(): array
-    {
-        return $this->shipped;
     }
 
     /** @param list<Target> $targets */

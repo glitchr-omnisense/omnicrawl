@@ -13,8 +13,8 @@ service is called. One contract by capability, one package per provider, as ever
   site, written permission, published terms, robots.txt only), with a reference and a date, its
   rate limits, what may be stored and republished. A site nobody declared gets the conservative
   default: single pages for previews, one request every 10 seconds and 100 a day per host, no
-  rendering, no crawl run. The family ships its own refusals (sites whose terms forbid automated
-  collection).
+  rendering, no crawl run. Each application declares the sites it refuses (the family ships no
+  list of third-party sites).
 - **An identified User-Agent** with a contact, required by every factory; per-host limits beside
   the provider's own, the stricter winning.
 - **X-Robots-Tag, meta robots and TDMRep** reservations read and honoured.

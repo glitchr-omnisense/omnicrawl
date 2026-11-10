@@ -7,6 +7,8 @@ use Omnicrawl\Exception\RefusedException;
 use Omnicrawl\Exception\ReservedException;
 use Omnicrawl\Exception\TargetRefusedException;
 use Omnicrawl\Model\ExtractRequest;
+use Omnicrawl\Target\Target;
+use Omnicrawl\Target\Targets;
 use Omnicrawl\Tests\Kit;
 use PHPUnit\Framework\TestCase;
 
@@ -45,31 +47,30 @@ final class RefusedTargetTest extends TestCase
         self::assertSame([], $kit->gateRequests(), 'not even robots.txt was asked for');
     }
 
-    public function testTheShippedRefusalOfARailOperatorsTimetables(): void
+    public function testARailOperatorsTimetablesRefusedByTheApplicationsOwnDeclaration(): void
     {
-        $kit = new Kit();
+        // The family ships no list of third-party sites: the application declares the ones it
+        // refuses, with the terms' address and the day it read them (Fixtures/refused-targets.json).
+        $declared = Targets::fromFile(__DIR__.'/../Fixtures/refused-targets.json')->declared();
+        $kit = new Kit([], [], array_map(static fn (Target $t) => $t->toArray(), $declared));
         $kit->registry->get('site');
 
         try {
             $kit->registry->pageFetch('site')->fetch('https://transfer.navitime.biz/tokyu/pc/diagram/TrainDiagram?node=00000000');
-            self::fail('The shipped refusal was not applied.');
+            self::fail('The declared refusal was not applied.');
         } catch (TargetRefusedException $e) {
+            self::assertSame(RefusedException::REASON_DECLARED, $e->reason);
             self::assertSame('https://transfer.navitime.biz/tokyu/pc/disclaimer/DisclaimerInformation', $e->reference);
         }
         self::assertSame([], $kit->calls());
         self::assertSame([], $kit->gateRequests());
+        self::assertTrue((new Kit())->registry->gate()->targets()->for('transfer.navitime.biz', '/tokyu/pc/x')->allowed, 'nothing refuses it but the application\'s declaration');
     }
 
-    public function testAShippedRefusalYieldsToALicenceOnly(): void
+    public function testTheFamilyShipsNoListOfThirdPartySites(): void
     {
-        $read = ['target' => 'transfer.navitime.biz/tokyu/', 'collection' => 'allowed', 'authority' => 'robots-only'];
-        $published = ['target' => 'transfer.navitime.biz', 'collection' => 'allowed', 'authority' => 'published-terms', 'reference' => 'https://example.org/my-reading', 'date' => '2026-11-10'];
-        $written = ['target' => 'transfer.navitime.biz/tokyu/', 'collection' => 'allowed', 'authority' => 'written-permission', 'reference' => 'Letter from the operator, 2026-11-01 (DOC-77)', 'date' => '2026-11-01'];
-
-        foreach ([$read, $published] as $declared) {
-            self::assertFalse((new Kit([], [], [$declared]))->registry->gate()->targets()->for('transfer.navitime.biz', '/tokyu/pc/x')->allowed, $declared['authority'].' does not lift a known refusal');
-        }
-        self::assertTrue((new Kit([], [], [$written]))->registry->gate()->targets()->for('transfer.navitime.biz', '/tokyu/pc/x')->allowed);
+        self::assertFileDoesNotExist(\dirname(__DIR__, 2).'/resources/targets');
+        self::assertSame([], (new Targets())->declared());
     }
 
     public function testAnOperationTheDeclarationDoesNotNameIsRefused(): void

@@ -32,11 +32,11 @@ final class Kit
      * @param array{options?: array<string, mixed>, policy?: array<string, mixed>, usage?: array<string, mixed>} $provider the provider's entry: policy, options
      * @param list<string>                                                                         $extra
      */
-    public function __construct(array $files = [], array $pages = [], array $declared = [], ?Capabilities $capabilities = null, array $provider = [], array $extra = [], bool $shipped = true)
+    public function __construct(array $files = [], array $pages = [], array $declared = [], ?Capabilities $capabilities = null, array $provider = [], array $extra = [])
     {
         $this->http = RecordedHttpClient::routes($files);
         $clock = fn (): float => $this->now;
-        $gate = new Gate(Agent::parse(self::UA), $this->http, new Targets($declared, $shipped), new InMemoryStore($clock), new InMemoryRateLimiter($clock), fn (): \DateTimeImmutable => (new \DateTimeImmutable())->setTimestamp((int) $this->now));
+        $gate = new Gate(Agent::parse(self::UA), $this->http, new Targets($declared), new InMemoryStore($clock), new InMemoryRateLimiter($clock), fn (): \DateTimeImmutable => (new \DateTimeImmutable())->setTimestamp((int) $this->now));
         $this->factory = new FixedFactory($pages, $capabilities ?? new Capabilities(pageFetch: true, crawlRuns: true, rendering: true, headers: true), extra: $extra);
         $this->registry = new Registry([$this->factory], ['site' => ['factory' => 'fixed'] + $provider], $gate);
     }

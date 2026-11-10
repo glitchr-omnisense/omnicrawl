@@ -5,8 +5,8 @@
  * Omnicrawl in plain PHP: no bundle, no container, no framework. A gate
  * with a site's agent and one declaration, a registry of the direct
  * provider over recorded answers: a link preview of an undeclared site
- * (robots.txt read first), a refusal by robots.txt, the shipped refusal of
- * a rail operator's timetables, a run refused on an undeclared site - and
+ * (robots.txt read first), a refusal by robots.txt, the application's
+ * own refusal of a rail operator's timetables (declared as data), a run refused on an undeclared site - and
  * the requests made, to show that the refused ones made none. Prints what
  * happened and every class and file PHP loaded, as JSON.
  */
@@ -26,6 +26,7 @@ $http = RecordedHttpClient::routes([
     '~^GET https://news\.example\.com/articles/1$~' => [200, '<html lang="en"><head><title>Article</title><meta property="og:title" content="An article"><meta property="og:image" content="/cover.jpg"><meta name="description" content="What it says"></head><body></body></html>', ['content-type' => ['text/html']]],
 ]);
 $gate = new Gate(Agent::parse('BareBot/1.0 (+https://example.org/bot; bot@example.org)'), $http, new Targets([
+    ['target' => 'transfer.navitime.biz/tokyu/', 'collection' => 'refused', 'authority' => 'published-terms', 'reference' => 'https://transfer.navitime.biz/tokyu/pc/disclaimer/DisclaimerInformation', 'date' => '2026-11-10', 'operations' => ['page-fetch', 'extract', 'crawl-runs'], 'reason' => 'Its terms forbid collecting its content by crawlers, robots, scraping or any automated means.'],
     ['target' => 'docs.example.org', 'collection' => 'allowed', 'authority' => 'own-site', 'reference' => 'https://docs.example.org', 'date' => '2026-11-10', 'operations' => ['page-fetch', 'extract', 'crawl-runs']],
 ]));
 $registry = new Registry([new DirectFactory($http)], ['direct' => ['factory' => 'direct']], $gate);

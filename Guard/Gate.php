@@ -28,8 +28,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * this order, and throws at the first refusal:
  *
  *  1. the address is http(s), with a host and no credentials in it;
- *  2. its target (the most specific declaration, a shipped refusal, or
- *     the default) allows collection - TargetRefusedException otherwise;
+ *  2. its target (the most specific declaration, or the default) allows
+ *     collection - TargetRefusedException otherwise;
  *  3. ... and allows the operation, and rendering when it is asked;
  *  4. a provider that evades blocks by itself (Capabilities::$evasion) is
  *     used under a licence only (own site, written permission);

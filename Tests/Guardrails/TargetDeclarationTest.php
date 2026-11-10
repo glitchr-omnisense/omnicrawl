@@ -52,7 +52,7 @@ final class TargetDeclarationTest extends TestCase
             ['target' => 'shop.example.org', 'collection' => 'refused', 'authority' => 'published-terms', 'reference' => 'https://shop.example.org/terms', 'date' => '2026-11-10', 'reason' => 'no bots'],
             ['target' => 'shop.example.org/press/', 'collection' => 'allowed', 'authority' => 'written-permission', 'reference' => 'Press office, 2026-11-02', 'date' => '2026-11-02'],
             ['target' => 'example.org:8443', 'collection' => 'allowed', 'authority' => 'own-site', 'reference' => 'https://example.org:8443', 'date' => '2026-11-10', 'rateLimits' => []],
-        ], shipped: false);
+        ]);
 
         self::assertSame('*.example.org', $targets->for('blog.example.org', '/')->pattern);
         self::assertSame(Targets::ANY, $targets->for('example.org', '/')->pattern, '*.example.org is not example.org itself');
@@ -62,7 +62,7 @@ final class TargetDeclarationTest extends TestCase
         self::assertSame([], $targets->for('example.org:8443', '/')->rateLimits);
     }
 
-    public function testDeclarationsReadFromAFileAndTheShippedOnesAreValid(): void
+    public function testDeclarationsReadFromAFile(): void
     {
         $file = tempnam(sys_get_temp_dir(), 'targets');
         file_put_contents((string) $file, json_encode(['targets' => [['target' => 'docs.example.org', 'collection' => 'allowed', 'authority' => 'own-site', 'reference' => 'https://docs.example.org', 'date' => '2026-11-10', 'operations' => ['page-fetch', 'crawl-runs'], 'render' => true]]]));
@@ -70,12 +70,6 @@ final class TargetDeclarationTest extends TestCase
         unlink((string) $file);
 
         self::assertTrue($targets->for('docs.example.org', '/')->allows(Operation::CrawlRuns));
-        self::assertNotEmpty($targets->shipped());
-        foreach ($targets->shipped() as $shipped) {
-            self::assertFalse($shipped->allowed);
-            self::assertNotNull($shipped->reference);
-            self::assertNotNull($shipped->date);
-        }
         self::assertSame('docs.example.org', Target::fromArray($targets->declared()[0]->toArray())->pattern, 'a declaration reads back what it writes');
     }
 

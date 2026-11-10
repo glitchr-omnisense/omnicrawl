@@ -9,7 +9,7 @@ use Omnicrawl\Testing\BareTestCase;
 /**
  * omnisense/omnicrawl with no framework: the harness's bare script makes a
  * link preview through the gate and the direct provider, is refused by
- * robots.txt and by the shipped list, in a PHP process of its own - nothing
+ * robots.txt and by the application's own declaration, in a PHP process of its own - nothing
  * may load from outside the package but omnisense/contracts and Symfony's
  * HTTP client contracts (interfaces only).
  */

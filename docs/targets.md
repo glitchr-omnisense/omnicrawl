@@ -87,13 +87,14 @@ $gate = new Gate(
 | `robots-only` | nothing but robots.txt | the declared operations under robots.txt; crawl runs only with a reference (someone read the site's invitation) |
 
 Only a licence (`own-site`, `written-permission`) lifts a TDM reservation, sets robots.txt aside,
-admits a provider that evades blocks by itself, or overrides one of the family's shipped refusals.
+or admits a provider that evades blocks by itself or hides who collects (Zyte API, ScrapingBee).
 
 ## Which declaration applies
 
 The most specific pattern that covers the address: an exact host before a wildcard, a longer host
-before a shorter one, a longer path prefix before a shorter one. A shipped refusal applies unless
-the application's declaration for the address is a licence. With no declaration, the default.
+before a shorter one, a longer path prefix before a shorter one. With no declaration, the
+default. The family ships no declaration of any third-party site: refusals are the application's
+to declare (see the example in [refusals.md](refusals.md)).
 
 ## Limits
 

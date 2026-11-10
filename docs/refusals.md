@@ -14,13 +14,26 @@ Everything below is enforced by the core (`Omnicrawl\Guard\Gate`), proved by the
 - **A target declared as refused** is refused with `TargetRefusedException` (reason
   `declared-refused`), with the reference where the refusal was read. Nothing is requested: not
   the provider, not even the site's robots.txt.
-- **The family ships its own refusals** (`resources/targets/refused.json`): sites whose published
-  terms forbid automated collection, each with its reference and the day it was read. The first
-  is a Japanese rail operator's timetable service: Tokyu Railways' fare, route and timetable
-  search, whose terms forbid collecting its content by crawlers, robots, scraping or any
-  automated means, and using it to train models. A site's own declaration lifts a shipped refusal
-  only under a licence (its own site, or the owner's written permission): no reading of terms or
-  robots.txt turns a known refusal into a permission.
+- **Each application declares the sites it refuses.** The family ships no list of third-party
+  sites: whether a site's terms forbid collection is read by whoever operates the application,
+  who declares the refusal with the terms' address and the day they were read. An example: a
+  Japanese rail operator's timetable service, Tokyu Railways' fare, route and timetable search
+  (run on NAVITIME's transfer service), whose terms forbid collecting its content by crawlers,
+  robots, scraping or any automated means, and using it to train models
+  (https://transfer.navitime.biz/tokyu/pc/disclaimer/DisclaimerInformation, read 2026-11-10):
+
+  ```json
+  {
+      "target": "transfer.navitime.biz/tokyu/",
+      "collection": "refused",
+      "authority": "published-terms",
+      "reference": "https://transfer.navitime.biz/tokyu/pc/disclaimer/DisclaimerInformation",
+      "date": "2026-11-10",
+      "operations": ["page-fetch", "extract", "crawl-runs"],
+      "reason": "Its terms forbid collecting its content by crawlers, robots, scraping or any automated means."
+  }
+  ```
+
 - **A site that says nothing** gets the conservative default (below), never "anything goes".
 
 ## It refuses what robots.txt disallows
