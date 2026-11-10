@@ -71,8 +71,8 @@ gives a provider unguarded, and what it returns carries no provenance: use the g
 | `omnicrawl/zyte` | page-fetch, extract | no | yes | licensed targets only: its ban avoidance cannot be turned off |
 | `omnicrawl/apify` | crawl-runs | no | yes | Cheerio Scraper actor, raw HTML |
 
-A provider that publishes limits per plan declares them in `plans.json` beside its policy
-(`Policy\Plans`, `resources/plans.schema.json`): the default is the most restrictive plan, the
+A provider that publishes limits per plan declares them in its `policy.json`, under `plans`
+(omnisense/contracts' schema, `UsagePolicy::forPlan()`): the default is the most restrictive plan, the
 `plan` option picks another (`'options' => ['api_key' => 'FIRECRAWL_API_KEY', 'plan' => 'standard']`),
 an unknown plan is refused, and a site may only tighten the plan it picked. Firecrawl and
 ScrapingBee declare theirs; Zyte API and Apify publish one figure for every plan.
