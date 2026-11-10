@@ -1,0 +1,8 @@
+{
+    "$schema": "../../resources/plans.schema.json",
+    "default": "free",
+    "plans": {
+        "free": {"rateLimits": [{"max": 10, "window": "minute", "operations": ["fetch"]}], "concurrency": 2, "source": "https://provider.example.com/limits", "verifiedAt": "2026-11-10"},
+        "pro": {"rateLimits": [{"max": 500, "window": "minute", "operations": ["fetch"]}], "concurrency": 25, "source": "https://provider.example.com/limits", "verifiedAt": "2026-11-10", "note": "The paid tier."}
+    }
+}

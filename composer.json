@@ -42,7 +42,7 @@
     "suggest": {
         "symfony/http-client": "The HTTP client the gate reads robots.txt with and the direct provider fetches with (any HttpClientInterface does)",
         "omnicrawl/firecrawl": "Firecrawl (v2): pages fetched, rendered or not, and batch runs over a set of addresses",
-        "omnicrawl/scrapingbee": "ScrapingBee: pages fetched, rendered or not, the target's headers reported",
+        "omnicrawl/scrapingbee": "ScrapingBee: pages fetched, rendered or not, the target's headers reported, for targets declared under a licence only (its rotating proxies hide who collects)",
         "omnicrawl/zyte": "Zyte API: pages fetched over HTTP, for targets declared under a licence only (its ban avoidance cannot be turned off)",
         "omnicrawl/apify": "Apify: runs over a set of addresses with the Cheerio Scraper actor, raw HTML and headers kept",
         "omnisense/omnibridge": "The host contracts; omnibridge/symfony and omnibridge/laravel give a shared limiter and store"

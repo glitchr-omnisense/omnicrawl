@@ -1,0 +1,29 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/glitchr-omnisense/omnicrawl/blob/1.x/resources/plans.schema.json",
+    "title": "omnicrawl provider plans",
+    "description": "The plans a provider publishes limits for, beside its policy.json (Omnicrawl\\Policy\\Plans). The default is the most restrictive plan, and policy.json's own rateLimits and concurrency are the default plan's. A plan's rateLimits and concurrency replace the policy's; rights, requirements and terms stay the provider's. Shaped to become a \"plans\" member of omnisense/contracts' usage-policy schema unchanged.",
+    "type": "object",
+    "required": ["default", "plans"],
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {"type": "string"},
+        "default": {"type": "string", "description": "The plan that applies when the site names none: the free or most restrictive one."},
+        "plans": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+                "type": "object",
+                "required": ["source", "verifiedAt"],
+                "additionalProperties": false,
+                "properties": {
+                    "rateLimits": {"type": ["array", "null"], "items": {"$ref": "https://github.com/glitchr-omnisense/contracts/blob/1.x/resources/usage-policy.schema.json#/$defs/rateLimit"}},
+                    "concurrency": {"type": ["integer", "null"], "minimum": 1},
+                    "source": {"type": "string", "minLength": 1, "description": "Where the provider publishes the plan's limits."},
+                    "verifiedAt": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                    "note": {"type": "string"}
+                }
+            }
+        }
+    }
+}

@@ -67,9 +67,15 @@ gives a provider unguarded, and what it returns carries no provenance: use the g
 |---|---|---|---|---|
 | built in: `direct` | page-fetch, extract | no | yes | the application's own HTTP client; each redirect admitted before it is followed |
 | `omnicrawl/firecrawl` | page-fetch, extract, crawl-runs | always | no | undeclared sites refused (the default allows no rendering) |
-| `omnicrawl/scrapingbee` | page-fetch, extract | on request | yes | the target's status passed through |
+| `omnicrawl/scrapingbee` | page-fetch, extract | on request | yes | licensed targets only: its rotating proxies hide who collects |
 | `omnicrawl/zyte` | page-fetch, extract | no | yes | licensed targets only: its ban avoidance cannot be turned off |
 | `omnicrawl/apify` | crawl-runs | no | yes | Cheerio Scraper actor, raw HTML |
+
+A provider that publishes limits per plan declares them in `plans.json` beside its policy
+(`Policy\Plans`, `resources/plans.schema.json`): the default is the most restrictive plan, the
+`plan` option picks another (`'options' => ['api_key' => 'FIRECRAWL_API_KEY', 'plan' => 'standard']`),
+an unknown plan is refused, and a site may only tighten the plan it picked. Firecrawl and
+ScrapingBee declare theirs; Zyte API and Apify publish one figure for every plan.
 
 Keys go by reference (`api_key: FIRECRAWL_API_KEY`), read from the environment by default
 (`Secrets\EnvSecrets`) or from the secrets given to the factory.

@@ -119,11 +119,21 @@ Why: a site that blocks a crawler is saying no. Proxy rotation to defeat a block
 IPs, CAPTCHA solving and fingerprint disguise exist to override that answer; the family exists to
 respect it.
 
-Zyte API avoids bans by itself - CAPTCHA handling and residential IPs are on by default and cannot
-be turned off per request - and may override the User-Agent "for certain websites if needed for
-ban avoidance". Its provider declares both (`Capabilities::$evasion`), and the gate uses a
-provider with any evasion **for targets declared under a licence only** (one's own site, written
-permission): `TargetRefusedException`, reason `provider-not-allowed`, everywhere else.
+Two services hide or override what the target sees, with no switch to turn it off:
+
+- **Zyte API** avoids bans by itself - CAPTCHA handling and residential IPs are on by default and
+  cannot be turned off per request - and may override the User-Agent "for certain websites if
+  needed for ban avoidance" (`evasion: ["ban-avoidance", "user-agent-override"]`);
+- **ScrapingBee** sends every request through its rotating proxy pool: the target cannot tell who
+  is collecting from the address it sees, which goes against the identified User-Agent
+  (`evasion: ["proxy-rotation"]`).
+
+The rule is the same for both, and for any provider that declares an evasion
+(`Capabilities::$evasion`): the gate uses it **only for targets declared as `own-site` or
+`written-permission`** - the two authorities that are a licence -, never for `published-terms`,
+`robots-only` or an undeclared site (`TargetRefusedException`, reason `provider-not-allowed`,
+before the service is called). On one's own site, or with the owner's written yes, the site knows
+who collects whatever address the request comes from.
 
 Firecrawl renders every page in a browser, with no switch to turn it off: it declares
 `alwaysRenders`, and the gate admits it only where rendering is allowed.
