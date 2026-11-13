@@ -1,6 +1,14 @@
 # Changelog
 
-## 1.x (unreleased)
+## [Unreleased]
+
+## [1.0.0] - 2026-11-13
+
+The first stable version. It requires `omnisense/contracts` `^1.0` with no stability flag, so `composer require omnisense/omnicrawl` installs it in a project with Composer's default minimum-stability; the 1.x series follows semantic versioning. A tag `vX.Y.Z` is released by `.github/workflows/release.yml` once the package's CI passes on it.
+
+- Installation: the README and docs/index.md give the install lines and a first call that needs no
+  account and no network (the direct provider over the Testing kit's recorded client), and say what
+  needs an account (Firecrawl, ScrapingBee, Zyte, Apify: each its API key).
 
 - Plans moved into omnisense/contracts (the usage-policy schema's `plans` member,
   `UsagePolicy::forPlan()`, the factory's `plan` option read by the kernel): `Policy\Plans` is a

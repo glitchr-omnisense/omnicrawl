@@ -7,6 +7,41 @@ service is called.
 - [What omnicrawl refuses to do, and why](refusals.md)
 - [Declaring a target](targets.md)
 
+## Installation
+
+```sh
+composer require omnisense/omnicrawl
+composer require symfony/http-client          # the client the gate reads robots.txt with, and the direct provider fetches with
+```
+
+Requirements: PHP 8.2 or later with the dom, libxml and mbstring extensions; omnisense/contracts and
+symfony/http-client-contracts. A provider package adds what it calls (`composer require omnicrawl/firecrawl`,
+`omnicrawl/scrapingbee`, `omnicrawl/zyte` or `omnicrawl/apify`).
+
+No account and no network for this first call: the recorded client of the Testing kit (omnisense/contracts'
+RecordedHttpClient) answers for the site, robots.txt included. The built-in `direct` provider needs no account
+either, only a real HTTP client and a User-Agent naming a contact; Firecrawl, ScrapingBee, Zyte and Apify each
+need an account and its API key (`omnicrawl/<provider>`, `api_key` option), and ScrapingBee and Zyte a target
+declared as one's own site or with written permission.
+
+```php
+require __DIR__.'/vendor/autoload.php';
+
+use Omnicrawl\{Agent, Registry};
+use Omnicrawl\Direct\DirectFactory;
+use Omnicrawl\Guard\Gate;
+use Omnicrawl\Testing\RecordedHttpClient;
+
+$http = RecordedHttpClient::routes([          // the site's answers, recorded: symfony/http-client's HttpClient::create() in production
+    '~^GET https://news\.example\.com/robots\.txt$~' => [200, "User-agent: *\nDisallow: /drafts/\n", ['content-type' => ['text/plain']]],
+    '~^GET https://news\.example\.com/articles/1$~' => [200, '<html><head><title>Article</title><meta property="og:title" content="An article"></head></html>', ['content-type' => ['text/html']]],
+]);
+$gate = new Gate(Agent::parse('ExampleBot/1.0 (+https://www.example.org/bot; bot@example.org)'), $http);
+$registry = new Registry([new DirectFactory($http)], ['preview' => ['factory' => 'direct']], $gate);
+
+echo $registry->extract('preview')->extract('https://news.example.com/articles/1')->preview()['title'], "\n";   // An article
+```
+
 ## In plain PHP
 
 ```php
